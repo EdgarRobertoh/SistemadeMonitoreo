@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public class Main {
     // Interfaz para los sensores (Observable)
     interface Sensor {
@@ -41,7 +44,9 @@ public class Main {
         @Override
         public void setMedicion(double valor) {
             this.medicionActual = valor;
-            if (valor < valorMinimo || valor > valorMaximo) {
+            if (valor < valorMinimo) {
+                notificarObservadores("Alerta: " + tipo + " por debajo de nivel crítico. Valor: " + valor);
+            } else if (valor > valorMaximo) {
                 notificarObservadores("Alerta: " + tipo + " fuera de rango. Valor: " + valor);
             }
         }
@@ -58,6 +63,14 @@ public class Main {
         public SensorPresion() {
             super(0, 1000, "Presión");
         }
+
+        @Override
+        public void setMedicion(double valor) {
+            super.setMedicion(valor);
+            if (valor < 30) { // Supongamos que 30 es el límite crítico para baja presión
+                notificarObservadores("Alerta: Presión baja. Valor: " + valor);
+            }
+        }
     }
 
     class SensorHumedad extends SensorBase {
@@ -69,6 +82,14 @@ public class Main {
     class SensorCombustible extends SensorBase {
         public SensorCombustible() {
             super(0, 100, "Nivel de Combustible");
+        }
+
+        @Override
+        public void setMedicion(double valor) {
+            super.setMedicion(valor);
+            if (valor < 10) { // Supongamos que 10 es el límite crítico para bajo nivel de combustible
+                notificarObservadores("Alerta: Nivel de combustible bajo. Valor: " + valor);
+            }
         }
     }
 
@@ -102,7 +123,7 @@ public class Main {
     }
 
     // Clase principal para demostrar el funcionamiento
-    public class SistemaMonitoreo {
+    public static class SistemaMonitoreo {
         public static void main(String[] args) {
             // Crear sensores
             Sensor sensorTemp = new SensorTemperatura();
@@ -125,10 +146,8 @@ public class Main {
             // Simular lecturas de sensores
             sensorTemp.setMedicion(120); // Fuera de rango
             sensorPresion.setMedicion(50); // Dentro del rango
-            sensorPresion.setMedicion(-10); // Fuera de rango
+            sensorPresion.setMedicion(20); // Presión baja
             sensorCombustible.setMedicion(5); // Nivel bajo
         }
     }
-
-}
 }
